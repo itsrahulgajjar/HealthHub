@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body style="background-color: #f4f4f4; text-align: center;">
+
+    <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); margin: 0 auto; max-width: 400px; margin-top: 100px;">
+
+        <h1 style="font-size: 24px; margin-bottom: 20px;">Register</h1>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul style="list-style: none; padding: 0; margin: 0; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 3px; padding: 10px; margin-top: 10px;">
+                    {% for message in messages %}
+                        <li style="margin-bottom: 5px;">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" style="text-align: left;">
+            <div style="margin-bottom: 20px;">
+                <label for="email" style="display: block; font-weight: bold;">Email:</label>
+                <input type="email" name="email" id="email" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label for="password" style="display: block; font-weight: bold;">Password:</label>
+                <input type="password" name="password" id="password" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <input type="submit" value="Register" class="btn" style="background-color: #007bff; color: #fff; padding: 10px 20px; border-radius: 3px; text-decoration: none; font-weight: bold; transition: background-color 0.3s ease-in-out;">
+            </div>
+        </form>
+
+        <p style="font-size: 16px;">Already have an account? <a href="{{ url_for('login') }}" style="color: #007bff; text-decoration: none; font-weight: bold;">Login</a></p>
+    </div>
+</body>
+</html>
