@@ -1,0 +1,58 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+</head>
+<body>
+    <h1>Prediction Result:</h1>
+    <p>The predicted health value is: {{ result }}</p>
+    <div> -->
+        <!-- <img src="{{ url_for('static', filename='visualization.png') }}" alt="Visualization"> -->
+        <!-- <img src="{{ image_data }}" alt="Visualization">
+    </div>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Prediction Result</title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #007bff;
+            margin-top: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        div {
+            margin-top: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Prediction Result</h1>
+    <p>The predicted health value is: {{ result }}</p>
+    <div>
+        <img src="{{ image_data }}" alt="Visualization">
+    </div>
+</body>
+
+</html>
