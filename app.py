@@ -5,7 +5,11 @@ import pickle
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
+# import tensorflow
+# from tensorflow import keras
+# from keras.models import load_model
 
+#model = keras.models.load_model('model_keras.h5')
 model = pickle.load(open('model.pkl', 'rb'))
 
 app = Flask(__name__)
@@ -80,6 +84,18 @@ def generate_visualization(Age, SystolicBP, DiastolicBP, BS, BodyTemp, HeartRate
     return filename
 ##
 
+####
+import boto3
+from botocore.exceptions import NoCredentialsError
+import json
+
+# Initialize a connection to AWS S3
+s3 = boto3.client('s3')
+
+# Your AWS S3 bucket name
+S3_BUCKET_NAME = 'project-healthhub'
+####
+
 @app.route('/predict', methods=['POST'])
 def predict_health():
     Age = int(request.form.get('Age'))
@@ -115,13 +131,46 @@ def predict_health():
 
      # Generate the Matplotlib visualization and get the image data
     image_data = generate_visualization(Age, SystolicBP, DiastolicBP, BS, BodyTemp, HeartRate)
+#### To store the data in s3 bucket
+# Create a dictionary to store user data
+    user_data = {
+        'Age': Age,
+        'SystolicBP': SystolicBP,
+        'DiastolicBP': DiastolicBP,
+        'BS': BS,
+        'BodyTemp': BodyTemp,
+        'HeartRate': HeartRate
+    }
 
+    # Convert user data to JSON format
+    user_data_json = json.dumps(user_data)
+
+    try:
+        # Upload the user data JSON to S3
+        user_data_filename = f'user_data/user_data_{int(time.time())}.json'
+        s3.put_object(Bucket=S3_BUCKET_NAME, Key=user_data_filename, Body=user_data_json)
+
+        # Upload the visualization image to S3
+        image_filename = f'visualizations/visualization_{int(time.time())}.png'
+        s3.upload_file(image_data, S3_BUCKET_NAME, image_filename)
+
+        # Construct S3 URLs for the uploaded data (optional)
+        user_data_s3_url = f'https://{S3_BUCKET_NAME}.s3.amazonaws.com/{user_data_filename}'
+        image_s3_url = f'https://{S3_BUCKET_NAME}.s3.amazonaws.com/{image_filename}'
+
+        # You can save the URLs to the database or use them as needed
+        # ...
+
+        return render_template('prediction.html', result=result_str, user_data=user_data_json, image_data=image_s3_url)
+    except NoCredentialsError:
+        return "AWS credentials not available. Please configure your AWS credentials."
+####
     # Save the visualization image to the static folder
     ##with open('static/visualization.png', 'wb') as f:
     ##    f.write(base64.b64decode(image_data))
 
     #return str(result)
-    return render_template('prediction.html', result=result_str, image_data=image_data)
+    ####return render_template('prediction.html', result=result_str, image_data=image_data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
