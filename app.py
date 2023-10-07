@@ -5,11 +5,7 @@ import pickle
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
-# import tensorflow
-# from tensorflow import keras
-# from keras.models import load_model
 
-#model = keras.models.load_model('model_keras.h5')
 model = pickle.load(open('model.pkl', 'rb'))
 
 app = Flask(__name__)
@@ -22,7 +18,6 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
 
-###
 # Define a new SQLAlchemy model for the health data
 class HealthData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,7 +28,6 @@ class HealthData(db.Model):
     body_temp = db.Column(db.Integer, nullable=False)
     heart_rate = db.Column(db.Integer, nullable=False)
     result = db.Column(db.String(50), nullable=False)
-###
 
 @app.route('/')
 def index():
@@ -47,16 +41,12 @@ def dashboard():
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
-##
 import time
-##
 
 def generate_visualization(Age, SystolicBP, DiastolicBP, BS, BodyTemp, HeartRate):
-##
-     # Generate a unique filename with a timestamp
+    # Generate a unique filename with a timestamp
     timestamp = int(time.time())  # Get the current timestamp
     filename = f'static/visualization_{timestamp}.png'
-##
     plt.figure()
     x_labels = ['Age', 'SystolicBP', 'DiastolicBP', 'BS', 'BodyTemp', 'HeartRate']
     values = [Age, SystolicBP, DiastolicBP, BS, BodyTemp, HeartRate]
@@ -64,27 +54,13 @@ def generate_visualization(Age, SystolicBP, DiastolicBP, BS, BodyTemp, HeartRate
     plt.xlabel('Input Parameters')
     plt.ylabel('Values')
     plt.title('Live Visualization')
-##
-    ##buffer = BytesIO()
-    ##plt.savefig(buffer, format='png')
-    ##buffer.seek(0)
 
-        # Save the Matplotlib figure with the unique filename
+    # Save the Matplotlib figure with the unique filename
     plt.savefig(filename, format='png')
     plt.close()
-##
 
-     # Encode the BytesIO object as base64
-    ##image_data = base64.b64encode(buffer.read()).decode('utf-8')
-
-    ##plt.close()
-
-    ##return image_data
-##
     return filename
-##
 
-####
 import boto3
 from botocore.exceptions import NoCredentialsError
 import json
@@ -94,7 +70,6 @@ s3 = boto3.client('s3')
 
 # Your AWS S3 bucket name
 S3_BUCKET_NAME = 'project-healthhub'
-####
 
 @app.route('/predict', methods=['POST'])
 def predict_health():
@@ -113,8 +88,7 @@ def predict_health():
     else:
         result_str = 'Your Health is on High Risk'
 
-###
-     # Create a new HealthData object and save it to the database
+    # Create a new HealthData object and save it to the database
     health_data = HealthData(
         age=Age,
         systolic_bp=SystolicBP,
@@ -127,11 +101,11 @@ def predict_health():
 
     db.session.add(health_data)
     db.session.commit()
-###
 
-     # Generate the Matplotlib visualization and get the image data
+    # Generate the Matplotlib visualization and get the image data
     image_data = generate_visualization(Age, SystolicBP, DiastolicBP, BS, BodyTemp, HeartRate)
-#### To store the data in s3 bucket
+
+# To store the data in s3 bucket
 # Create a dictionary to store user data
     user_data = {
         'Age': Age,
@@ -159,18 +133,9 @@ def predict_health():
         image_s3_url = f'https://{S3_BUCKET_NAME}.s3.amazonaws.com/{image_filename}'
 
         # You can save the URLs to the database or use them as needed
-        # ...
-
         return render_template('prediction.html', result=result_str, user_data=user_data_json, image_data=image_s3_url)
     except NoCredentialsError:
         return "AWS credentials not available. Please configure your AWS credentials."
-####
-    # Save the visualization image to the static folder
-    ##with open('static/visualization.png', 'wb') as f:
-    ##    f.write(base64.b64decode(image_data))
-
-    #return str(result)
-    ####return render_template('prediction.html', result=result_str, image_data=image_data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
